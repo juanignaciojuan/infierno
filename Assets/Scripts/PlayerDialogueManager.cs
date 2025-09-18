@@ -39,14 +39,14 @@ public class PlayerDialogueManager : MonoBehaviour
 
 #if ENABLE_INPUT_SYSTEM
         if (Keyboard.current != null)
-            pressed = allowKeyHold ? Keyboard.current.eKey.isPressed : Keyboard.current.eKey.wasPressedThisFrame;
+            pressed = allowKeyHold ? Keyboard.current.tKey.isPressed : Keyboard.current.tKey.wasPressedThisFrame;
 #endif
         if (!pressed)
-            pressed = allowKeyHold ? Input.GetKey(KeyCode.E) : Input.GetKeyDown(KeyCode.E);
+            pressed = allowKeyHold ? Input.GetKey(KeyCode.T) : Input.GetKeyDown(KeyCode.T);
 
         if (pressed)
         {
-            Debug.Log("E press detected");
+            Debug.Log("T press detected");
             PlayRandomDialogue();
         }
     }
