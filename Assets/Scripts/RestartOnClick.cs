@@ -7,6 +7,9 @@ public class RestartOnClick : MonoBehaviour
     [SerializeField] private Transform playerCamera;
     [SerializeField] private float interactionDistance = 5f;
 
+    [Header("Input")]
+    public InputActionReference clickAction; // Asignar click izquierdo en PC, trigger en Quest
+
     private void Start()
     {
         if (playerCamera == null && Camera.main != null)
@@ -15,20 +18,16 @@ public class RestartOnClick : MonoBehaviour
 
     private void Update()
     {
-        if (playerCamera == null) return;
+        if (playerCamera == null || clickAction == null) return;
 
-        // Lanzamos un raycast desde la cámara
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            if (hit.collider.gameObject == gameObject)
+            if (hit.collider.gameObject == gameObject && clickAction.action.WasPerformedThisFrame())
             {
-                if (Mouse.current.leftButton.wasPressedThisFrame)
-                {
-                    Debug.Log("[RestartOnClick] Black box clicked!");
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                }
+                Debug.Log("[RestartOnClick] Object clicked!");
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
         }
     }

@@ -2,15 +2,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 
-public class EscMessageDualInputConfigurable : MonoBehaviour
+public class EscMessage : MonoBehaviour
 {
     [Header("UI & Sound")]
-    public string messageToShow = "ESC pressed!";
-    public AudioSource audioSource;    
+    public string messageToShow = "ESC/Menu pressed!";
+    public AudioSource audioSource;
     public float displayTime = 3f;
 
-    [Header("New Input System (optional)")]
-    public InputActionReference escAction;
+    [Header("Input")]
+    public InputActionReference escAction; // Asignar Escape en PC, Menu en Quest
 
     private bool isShowing = false;
 
@@ -26,17 +26,9 @@ public class EscMessageDualInputConfigurable : MonoBehaviour
             escAction.action.performed -= OnEscPressed;
     }
 
-    private void Update()
-    {
-        // Always check the old Input for ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && !isShowing)
-            TriggerMessage();
-    }
-
     private void OnEscPressed(InputAction.CallbackContext context)
     {
-        if (!isShowing)
-            TriggerMessage();
+        if (!isShowing) TriggerMessage();
     }
 
     private void TriggerMessage()

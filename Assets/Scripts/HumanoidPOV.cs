@@ -1,14 +1,19 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class HumanoidPOV : MonoBehaviour
 {
-    public Camera humanoidCamera; // Assign in Inspector
-    public Camera playerCamera;   // Assign main camera here
-    public KeyCode switchKey = KeyCode.Q;
+    public Camera humanoidCamera;
+    public Camera playerCamera;
+
+    [Header("Input")]
+    public InputActionReference switchAction; // Asignar Q en PC, botón en Quest
 
     void Update()
     {
-        if (Input.GetKey(switchKey))
+        bool switchHeld = switchAction != null && switchAction.action.IsPressed();
+
+        if (switchHeld)
         {
             humanoidCamera.enabled = true;
             playerCamera.enabled = false;

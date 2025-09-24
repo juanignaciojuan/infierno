@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInteractor : MonoBehaviour
 {
@@ -10,34 +11,37 @@ public class PlayerInteractor : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private PlayerDialogueManager dialogueManager;
 
+    [Header("Input Actions")]
+    public InputActionReference primaryInteract;   // trigger
+    public InputActionReference secondaryInteract; // A/X
+    public InputActionReference randomTalk;        // Y/B
+
     private InteractableBase currentInteractable;
 
-    private void Start()
+    private void OnEnable()
     {
-        if (playerCamera == null)
-            playerCamera = Camera.main;
+        primaryInteract.action.performed += OnPrimaryInteract;
+        secondaryInteract.action.performed += OnSecondaryInteract;
+        randomTalk.action.performed += OnRandomTalk;
+    }
 
-        if (dialogueManager == null)
-            dialogueManager = Object.FindFirstObjectByType<PlayerDialogueManager>();
-
-        if (playerCamera == null)
-            Debug.LogError("PlayerInteractor: No camera assigned!");
+    private void OnDisable()
+    {
+        primaryInteract.action.performed -= OnPrimaryInteract;
+        secondaryInteract.action.performed -= OnSecondaryInteract;
+        randomTalk.action.performed -= OnRandomTalk;
     }
 
     private void Update()
     {
         DoHoverRaycast();
-        HandleInput();
-        HandleRandomTalk();
     }
 
     private void DoHoverRaycast()
     {
         if (playerCamera == null) return;
 
-        Ray ray = playerCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
-        Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.yellow);
-
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactLayer, QueryTriggerInteraction.Collide))
         {
             var hitInteract = hit.collider.GetComponentInParent<InteractableBase>();
@@ -45,7 +49,7 @@ public class PlayerInteractor : MonoBehaviour
             {
                 if (currentInteractable != hitInteract)
                 {
-                    if (currentInteractable != null) currentInteractable.HideHover();
+                    currentInteractable?.HideHover();
                     currentInteractable = hitInteract;
                     currentInteractable.ShowHover();
                 }
@@ -53,7 +57,7 @@ public class PlayerInteractor : MonoBehaviour
             }
         }
 
-        // nothing hit
+        // Nothing hit
         if (currentInteractable != null)
         {
             currentInteractable.HideHover();
@@ -61,31 +65,24 @@ public class PlayerInteractor : MonoBehaviour
         }
     }
 
-    private void HandleInput()
+    private void OnPrimaryInteract(InputAction.CallbackContext ctx)
     {
         if (currentInteractable == null) return;
-
-        // Left click
-        if (Input.GetMouseButtonDown(0) &&
-            (currentInteractable.interactionMode == InteractableBase.InteractionMode.LeftClick ||
-             currentInteractable.interactionMode == InteractableBase.InteractionMode.Both))
-        {
+        if (currentInteractable.interactionMode == InteractableBase.InteractionMode.LeftClick ||
+            currentInteractable.interactionMode == InteractableBase.InteractionMode.Both)
             currentInteractable.Interact();
-        }
-
-        // E key
-        if (Input.GetKeyDown(KeyCode.E) &&
-            (currentInteractable.interactionMode == InteractableBase.InteractionMode.EKey ||
-             currentInteractable.interactionMode == InteractableBase.InteractionMode.Both))
-        {
-            currentInteractable.Interact();
-        }
     }
 
-    private void HandleRandomTalk()
+    private void OnSecondaryInteract(InputAction.CallbackContext ctx)
     {
-        if (dialogueManager == null) return;
-        if (Input.GetKeyDown(KeyCode.T))
-            dialogueManager.PlayRandomDialogue();
+        if (currentInteractable == null) return;
+        if (currentInteractable.interactionMode == InteractableBase.InteractionMode.EKey ||
+            currentInteractable.interactionMode == InteractableBase.InteractionMode.Both)
+            currentInteractable.Interact();
+    }
+
+    private void OnRandomTalk(InputAction.CallbackContext ctx)
+    {
+        dialogueManager?.PlayRandomDialogue();
     }
 }

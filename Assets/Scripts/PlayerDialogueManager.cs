@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerDialogueManager : MonoBehaviour
 {
@@ -11,11 +12,14 @@ public class PlayerDialogueManager : MonoBehaviour
     public AudioSource audioSource;
 
     [Header("Options")]
-    public bool allowKeyHold = false; 
+    public bool allowKeyHold = false;
     public float subtitleDurationOverride = 0f;
 
+    [Header("Input")]
+    public InputActionReference talkAction; // Asignar E en PC, botón en Quest
+
     private List<int> unusedIndices = new List<int>();
-    private bool playerNear = false; // set true when inside NPC trigger
+    private bool playerNear = false;
 
     private void Awake()
     {
@@ -28,14 +32,22 @@ public class PlayerDialogueManager : MonoBehaviour
         ResetPool();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        bool pressed = allowKeyHold ? Input.GetKey(KeyCode.E) : Input.GetKeyDown(KeyCode.E);
+        if (talkAction != null)
+            talkAction.action.performed += OnTalkPressed;
+    }
 
-        if (playerNear && pressed)
-        {
+    private void OnDisable()
+    {
+        if (talkAction != null)
+            talkAction.action.performed -= OnTalkPressed;
+    }
+
+    private void OnTalkPressed(InputAction.CallbackContext ctx)
+    {
+        if (playerNear)
             PlayRandomDialogue();
-        }
     }
 
     public void SetPlayerNear(bool state)
@@ -43,7 +55,6 @@ public class PlayerDialogueManager : MonoBehaviour
         playerNear = state;
     }
 
-    // 🔹 Make sure this method is INSIDE the class!
     public void PlayRandomDialogue()
     {
         if (audioSource == null || dialogueClips.Count == 0)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using StarterAssets;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(CharacterController))]
@@ -18,6 +19,9 @@ public class PlayerFootsteps : MonoBehaviour
     public float walkStepInterval = 0.5f;
     public float runStepInterval = 0.3f;
 
+    [Header("Input")]
+    public InputActionReference runAction; // Asignar Shift en PC, joystick press en Quest
+
     private float stepTimer;
     private FirstPersonController fpsController;
     private CharacterController charController;
@@ -34,28 +38,20 @@ public class PlayerFootsteps : MonoBehaviour
 
         stepTimer = walkStepInterval;
         wasGrounded = charController.isGrounded;
-
-        /*audioSource.PlayOneShot(walkClips[1]);*/
     }
 
     void Update()
     {
-        Debug.Log("Footsteps script running");
-
         // Revisar si el jugador está en el suelo
         bool isGrounded = charController.isGrounded;
 
         // Detectar aterrizaje
         if (!wasGrounded && isGrounded)
-        {
             PlayLand();
-        }
 
         // Detectar salto
         if (wasGrounded && !isGrounded)
-        {
             PlayJump();
-        }
 
         wasGrounded = isGrounded;
 
@@ -64,7 +60,7 @@ public class PlayerFootsteps : MonoBehaviour
 
         // Detectar movimiento real usando la velocidad del CharacterController
         bool isMoving = charController.velocity.magnitude > 0.1f;
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        bool isRunning = runAction != null && runAction.action.IsPressed();
 
         float interval = isRunning ? runStepInterval : walkStepInterval;
         stepTimer -= Time.deltaTime;
@@ -83,7 +79,6 @@ public class PlayerFootsteps : MonoBehaviour
 
         AudioClip clip = clips[Random.Range(0, clips.Length)];
         audioSource.PlayOneShot(clip);
-        Debug.Log("Footstep played: " + clip.name);
     }
 
     public void PlayJump()

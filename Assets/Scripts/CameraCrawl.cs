@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraCrawl : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class CameraCrawl : MonoBehaviour
     public float crawlHeight = 0.6f;
     public float smoothSpeed = 8f;
 
+    [Header("Input")]
+    public InputActionReference crawlAction; // Asignar acción en InputSystems_Actions (Q en PC, crouch en Quest)
+
     private void Start()
     {
         if (cameraTransform == null)
@@ -22,16 +26,18 @@ public class CameraCrawl : MonoBehaviour
 
     private void Update()
     {
-        if (cameraTransform == null) return;
+        if (cameraTransform == null || crawlAction == null) return;
 
-        float targetY = Input.GetKey(KeyCode.Q) ? crawlHeight : normalHeight;
+        bool isCrawling = crawlAction.action.IsPressed();
+
+        float targetY = isCrawling ? crawlHeight : normalHeight;
         Vector3 localPos = cameraTransform.localPosition;
         localPos.y = Mathf.Lerp(localPos.y, targetY, Time.deltaTime * smoothSpeed);
         cameraTransform.localPosition = localPos;
 
         if (characterController != null)
         {
-            float targetHeight = Input.GetKey(KeyCode.Q) ? 0.9f : 1.8f;
+            float targetHeight = isCrawling ? 0.9f : 1.8f;
             characterController.height = Mathf.Lerp(characterController.height, targetHeight, Time.deltaTime * smoothSpeed);
             Vector3 center = characterController.center;
             center.y = characterController.height / 2f;
