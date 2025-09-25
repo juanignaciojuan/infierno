@@ -8,7 +8,7 @@ public class RestartOnClick : MonoBehaviour
     [SerializeField] private float interactionDistance = 5f;
 
     [Header("Input")]
-    public InputActionReference clickAction; // Asignar click izquierdo en PC, trigger en Quest
+    public InputActionReference clickAction; // Asignar Click (PC) o Trigger (Quest)
 
     private void Start()
     {

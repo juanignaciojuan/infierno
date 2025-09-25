@@ -11,26 +11,18 @@ public class NPCInteractable : InteractableBase
     private int currentIndex = 0;
     private bool dialogueActive = false;
 
-    private void Awake()
-    {
-        // NPCs use E key
-        interactionMode = InteractionMode.EKey;
-    }
-
     public override void Interact()
     {
         if (dialoguePanel == null || dialogueText == null) return;
 
         if (!dialogueActive)
         {
-            // first time you press E
             dialogueActive = true;
             dialoguePanel.SetActive(true);
             ShowNextLine();
         }
         else
         {
-            // every other press of E continues the dialogue
             ShowNextLine();
         }
     }
@@ -57,7 +49,7 @@ public class NPCInteractable : InteractableBase
 
     public override void ShowHover()
     {
-        UIManager.instance?.ShowInteractHint("Press E to talk");
+        UIManager.instance?.ShowInteractHint("Talk");
         isHovering = true;
     }
 }

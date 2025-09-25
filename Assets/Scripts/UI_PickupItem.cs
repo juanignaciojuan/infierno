@@ -10,7 +10,7 @@ public class UI_PickupItem : MonoBehaviour
     public AudioClip dropSound;
 
     [Header("Input")]
-    public InputActionReference pickupAction; // Asignar click izquierdo en PC, trigger en Quest
+    public InputActionReference pickupAction; // Click (PC) o Trigger (Quest)
 
     private bool isPickedUp = false;
     private static bool anyPicked = false;
@@ -35,7 +35,7 @@ public class UI_PickupItem : MonoBehaviour
         else Drop();
     }
 
-    void Pickup()
+    private void Pickup()
     {
         isPickedUp = true;
         anyPicked = true;
@@ -43,7 +43,7 @@ public class UI_PickupItem : MonoBehaviour
         if (audioSource && pickupSound) audioSource.PlayOneShot(pickupSound);
     }
 
-    void Drop()
+    private void Drop()
     {
         isPickedUp = false;
         anyPicked = false;

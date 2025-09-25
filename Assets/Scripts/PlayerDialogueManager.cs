@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerDialogueManager : MonoBehaviour
 {
@@ -12,11 +11,7 @@ public class PlayerDialogueManager : MonoBehaviour
     public AudioSource audioSource;
 
     [Header("Options")]
-    public bool allowKeyHold = false;
     public float subtitleDurationOverride = 0f;
-
-    [Header("Input")]
-    public InputActionReference talkAction; // Asignar E en PC, botón en Quest
 
     private List<int> unusedIndices = new List<int>();
     private bool playerNear = false;
@@ -32,24 +27,6 @@ public class PlayerDialogueManager : MonoBehaviour
         ResetPool();
     }
 
-    private void OnEnable()
-    {
-        if (talkAction != null)
-            talkAction.action.performed += OnTalkPressed;
-    }
-
-    private void OnDisable()
-    {
-        if (talkAction != null)
-            talkAction.action.performed -= OnTalkPressed;
-    }
-
-    private void OnTalkPressed(InputAction.CallbackContext ctx)
-    {
-        if (playerNear)
-            PlayRandomDialogue();
-    }
-
     public void SetPlayerNear(bool state)
     {
         playerNear = state;
@@ -57,6 +34,8 @@ public class PlayerDialogueManager : MonoBehaviour
 
     public void PlayRandomDialogue()
     {
+        if (!playerNear) return;
+
         if (audioSource == null || dialogueClips.Count == 0)
         {
             Debug.LogWarning("[PlayerDialogueManager] No AudioSource or clips set.");

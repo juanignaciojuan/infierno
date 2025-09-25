@@ -12,7 +12,6 @@ public class DoorInteractable : InteractableBase
 
     private void Awake()
     {
-        interactionMode = InteractionMode.LeftClick;
         targetRotation = transform.rotation;
     }
 
@@ -38,7 +37,7 @@ public class DoorInteractable : InteractableBase
     {
         if (UIManager.instance == null) return;
         if (isLocked) UIManager.instance.ShowInteractHint("Door is locked");
-        else UIManager.instance.ShowInteractHint(isOpen ? "Click to close door" : "Click to open door");
+        else UIManager.instance.ShowInteractHint(isOpen ? "Close door" : "Open door");
         isHovering = true;
     }
 }

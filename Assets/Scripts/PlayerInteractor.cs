@@ -12,24 +12,24 @@ public class PlayerInteractor : MonoBehaviour
     [SerializeField] private PlayerDialogueManager dialogueManager;
 
     [Header("Input Actions")]
-    public InputActionReference primaryInteract;   // trigger
-    public InputActionReference secondaryInteract; // A/X
-    public InputActionReference randomTalk;        // Y/B
+    public InputActionReference primaryInteract;   // Click / Trigger
+    public InputActionReference secondaryInteract; // E / A-X
+    public InputActionReference talkAction;        // Y-B / Keyboard "Talk"
 
     private InteractableBase currentInteractable;
 
     private void OnEnable()
     {
-        primaryInteract.action.performed += OnPrimaryInteract;
-        secondaryInteract.action.performed += OnSecondaryInteract;
-        randomTalk.action.performed += OnRandomTalk;
+        if (primaryInteract != null) primaryInteract.action.performed += OnPrimaryInteract;
+        if (secondaryInteract != null) secondaryInteract.action.performed += OnSecondaryInteract;
+        if (talkAction != null) talkAction.action.performed += OnTalk;
     }
 
     private void OnDisable()
     {
-        primaryInteract.action.performed -= OnPrimaryInteract;
-        secondaryInteract.action.performed -= OnSecondaryInteract;
-        randomTalk.action.performed -= OnRandomTalk;
+        if (primaryInteract != null) primaryInteract.action.performed -= OnPrimaryInteract;
+        if (secondaryInteract != null) secondaryInteract.action.performed -= OnSecondaryInteract;
+        if (talkAction != null) talkAction.action.performed -= OnTalk;
     }
 
     private void Update()
@@ -57,7 +57,6 @@ public class PlayerInteractor : MonoBehaviour
             }
         }
 
-        // Nothing hit
         if (currentInteractable != null)
         {
             currentInteractable.HideHover();
@@ -67,21 +66,15 @@ public class PlayerInteractor : MonoBehaviour
 
     private void OnPrimaryInteract(InputAction.CallbackContext ctx)
     {
-        if (currentInteractable == null) return;
-        if (currentInteractable.interactionMode == InteractableBase.InteractionMode.LeftClick ||
-            currentInteractable.interactionMode == InteractableBase.InteractionMode.Both)
-            currentInteractable.Interact();
+        currentInteractable?.Interact();
     }
 
     private void OnSecondaryInteract(InputAction.CallbackContext ctx)
     {
-        if (currentInteractable == null) return;
-        if (currentInteractable.interactionMode == InteractableBase.InteractionMode.EKey ||
-            currentInteractable.interactionMode == InteractableBase.InteractionMode.Both)
-            currentInteractable.Interact();
+        currentInteractable?.Interact();
     }
 
-    private void OnRandomTalk(InputAction.CallbackContext ctx)
+    private void OnTalk(InputAction.CallbackContext ctx)
     {
         dialogueManager?.PlayRandomDialogue();
     }

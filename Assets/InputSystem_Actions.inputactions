@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "InputSystem_Actions",
     "maps": [
         {
@@ -108,6 +109,24 @@
                     "name": "Talk",
                     "type": "Button",
                     "id": "5ff782a4-e4fa-4461-a6b4-1b112272fe02",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OpenDoor",
+                    "type": "Button",
+                    "id": "b7e5d5b2-bfac-40e1-bed5-85f41d435c2b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "NPCCameraView",
+                    "type": "Button",
+                    "id": "12d0ca0f-db27-4c71-b0d7-220e6f8aa3b8",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -398,6 +417,50 @@
                     "processors": "",
                     "groups": ";XR",
                     "action": "Talk",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4252b143-5bd0-4ab5-9f47-a7c8f49c773d",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "OpenDoor",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b90cd1ad-994f-4843-a099-762b0a15465f",
+                    "path": "<OculusTouchController>{LeftHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";XR",
+                    "action": "OpenDoor",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bdf84eee-9289-4df6-bb26-d18e0a4d2626",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "NPCCameraView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f7e4a515-c555-46e2-9b20-089be51c9f0d",
+                    "path": "<OculusTouchController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";XR",
+                    "action": "NPCCameraView",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

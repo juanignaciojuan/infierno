@@ -12,7 +12,6 @@ public class KeyPickup : InteractableBase
 
     private void Awake()
     {
-        interactionMode = InteractionMode.LeftClick;
         audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
     }
 
@@ -32,7 +31,7 @@ public class KeyPickup : InteractableBase
     public override void ShowHover()
     {
         if (isCollected) return;
-        UIManager.instance?.ShowInteractHint("Click to pick up key");
+        UIManager.instance?.ShowInteractHint("Pick up key");
         isHovering = true;
     }
 }
