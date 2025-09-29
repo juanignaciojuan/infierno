@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "XRI Default Input Actions",
     "maps": [
         {
@@ -7,7 +8,7 @@
             "actions": [
                 {
                     "name": "Position",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "1a9029f8-7a46-46b9-9eff-e9ae8365f611",
                     "expectedControlType": "Vector3",
                     "processors": "",
@@ -16,7 +17,7 @@
                 },
                 {
                     "name": "Rotation",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "aed87fe6-2b01-4dd2-a8fa-195578fd8158",
                     "expectedControlType": "Quaternion",
                     "processors": "",
@@ -329,7 +330,7 @@
             "actions": [
                 {
                     "name": "Position",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "83a7af0b-87e3-42c3-a909-95fbf8091e4f",
                     "expectedControlType": "Vector3",
                     "processors": "",
@@ -338,7 +339,7 @@
                 },
                 {
                     "name": "Rotation",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "cb6b7130-2bac-4ef7-abe4-6991ae7d419d",
                     "expectedControlType": "Quaternion",
                     "processors": "",
@@ -1422,7 +1423,7 @@
             "actions": [
                 {
                     "name": "Position",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "c4990d70-7b8a-4ce1-b03c-da86716b8352",
                     "expectedControlType": "Vector3",
                     "processors": "",
@@ -1431,7 +1432,7 @@
                 },
                 {
                     "name": "Rotation",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "ee6bf5bf-bb0a-4a50-8327-cb654b19e298",
                     "expectedControlType": "Quaternion",
                     "processors": "",
