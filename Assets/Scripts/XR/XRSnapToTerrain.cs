@@ -1,28 +1,29 @@
 using UnityEngine;
 
-public class GroundSnapper : MonoBehaviour
+[ExecuteAlways]
+public class XRSnapToTerrain : MonoBehaviour
 {
-    [Tooltip("Objects with these tags will be aligned to the terrain surface.")]
-    public string[] targetTags = { "NPC", "Item" };
-
-    [Tooltip("LayerMask for the terrain or ground objects.")]
     public LayerMask groundLayer;
+    public float offset = 0.05f; // Small vertical offset to prevent clipping
+    public float alignSpeed = 5f; // How fast the object rotates to align with the slope
 
-    private void Start()
+    void LateUpdate()
     {
-        foreach (var tag in targetTags)
-        {
-            GameObject[] objs = GameObject.FindGameObjectsWithTag(tag);
-            foreach (GameObject obj in objs)
-            {
-                RaycastHit hit;
-                Vector3 startPos = obj.transform.position + Vector3.up * 100f;
+        if (groundLayer == 0) return;
 
-                if (Physics.Raycast(startPos, Vector3.down, out hit, Mathf.Infinity, groundLayer))
-                {
-                    obj.transform.position = hit.point;
-                }
-            }
+        // Raycast down from above the object
+        Ray ray = new Ray(transform.position + Vector3.up, Vector3.down);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 5f, groundLayer))
+        {
+            // Snap to terrain height
+            Vector3 pos = transform.position;
+            pos.y = hit.point.y + offset;
+            transform.position = pos;
+
+            // Smoothly align rotation with terrain normal
+            Quaternion targetRot = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * alignSpeed);
         }
     }
 }
