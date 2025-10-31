@@ -977,7 +977,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""name"": ""Activate"",
                     ""type"": ""Button"",
                     ""id"": ""0c0991c5-d329-4afc-8892-1076b440477c"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -1069,6 +1069,17 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""name"": """",
                     ""id"": ""71a4d23f-3e9a-4513-923b-ba388c5e84bf"",
                     ""path"": ""<XRController>{LeftHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7f1d053a-f707-46a2-a9c2-63a00955cb3a"",
+                    ""path"": ""<XRController>{LeftHand}/triggerPressed"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -1432,6 +1443,15 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sprint"",
+                    ""type"": ""Button"",
+                    ""id"": ""b3f1eada-4253-49cb-a5f8-9a7cead6d9a0"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1498,6 +1518,17 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Snap Turn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a7b5aac0-e9c4-4aee-b5b1-d3a64e5da40f"",
+                    ""path"": ""<XRController>{LeftHand}/thumbstickClicked"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -2162,6 +2193,17 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""name"": """",
                     ""id"": ""1ce80054-410d-4112-a332-50faa7fb4f23"",
                     ""path"": ""<XRController>{RightHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3cacbc36-01b7-434b-b554-5f20a7f41705"",
+                    ""path"": ""<XRController>{RightHand}/triggerPressed"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -3536,6 +3578,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         m_XRILeftLocomotion_SnapTurn = m_XRILeftLocomotion.FindAction("Snap Turn", throwIfNotFound: true);
         m_XRILeftLocomotion_Move = m_XRILeftLocomotion.FindAction("Move", throwIfNotFound: true);
         m_XRILeftLocomotion_GrabMove = m_XRILeftLocomotion.FindAction("Grab Move", throwIfNotFound: true);
+        m_XRILeftLocomotion_Sprint = m_XRILeftLocomotion.FindAction("Sprint", throwIfNotFound: true);
         // XRI Right
         m_XRIRight = asset.FindActionMap("XRI Right", throwIfNotFound: true);
         m_XRIRight_Position = m_XRIRight.FindAction("Position", throwIfNotFound: true);
@@ -4321,6 +4364,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
     private readonly InputAction m_XRILeftLocomotion_SnapTurn;
     private readonly InputAction m_XRILeftLocomotion_Move;
     private readonly InputAction m_XRILeftLocomotion_GrabMove;
+    private readonly InputAction m_XRILeftLocomotion_Sprint;
     /// <summary>
     /// Provides access to input actions defined in input action map "XRI Left Locomotion".
     /// </summary>
@@ -4356,6 +4400,10 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         /// Provides access to the underlying input action "XRILeftLocomotion/GrabMove".
         /// </summary>
         public InputAction @GrabMove => m_Wrapper.m_XRILeftLocomotion_GrabMove;
+        /// <summary>
+        /// Provides access to the underlying input action "XRILeftLocomotion/Sprint".
+        /// </summary>
+        public InputAction @Sprint => m_Wrapper.m_XRILeftLocomotion_Sprint;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -4400,6 +4448,9 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
             @GrabMove.started += instance.OnGrabMove;
             @GrabMove.performed += instance.OnGrabMove;
             @GrabMove.canceled += instance.OnGrabMove;
+            @Sprint.started += instance.OnSprint;
+            @Sprint.performed += instance.OnSprint;
+            @Sprint.canceled += instance.OnSprint;
         }
 
         /// <summary>
@@ -4429,6 +4480,9 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
             @GrabMove.started -= instance.OnGrabMove;
             @GrabMove.performed -= instance.OnGrabMove;
             @GrabMove.canceled -= instance.OnGrabMove;
+            @Sprint.started -= instance.OnSprint;
+            @Sprint.performed -= instance.OnSprint;
+            @Sprint.canceled -= instance.OnSprint;
         }
 
         /// <summary>
@@ -5770,6 +5824,13 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnGrabMove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Sprint" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSprint(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "XRI Right" which allows adding and removing callbacks.

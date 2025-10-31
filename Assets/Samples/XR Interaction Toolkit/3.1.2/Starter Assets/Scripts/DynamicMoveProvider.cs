@@ -1,6 +1,7 @@
 using Unity.XR.CoreUtils;
 using UnityEngine.Assertions;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
+using UnityEngine.InputSystem;
 
 namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
 {
@@ -94,6 +95,13 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             set => m_RightHandMovementDirection = value;
         }
 
+        [SerializeField, Tooltip("Input action for sprint (run) mode.")]
+        InputActionProperty m_SprintAction;
+
+        [SerializeField, Tooltip("Speed multiplier when sprinting.")]
+        float m_SprintMultiplier = 2f;
+
+
         Transform m_CombinedTransform;
         Pose m_LeftMovementPose = Pose.identity;
         Pose m_RightMovementPose = Pose.identity;
@@ -183,6 +191,13 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             var combinedPosition = Vector3.Lerp(m_RightMovementPose.position, m_LeftMovementPose.position, leftHandBlend);
             var combinedRotation = Quaternion.Slerp(m_RightMovementPose.rotation, m_LeftMovementPose.rotation, leftHandBlend);
             m_CombinedTransform.SetPositionAndRotation(combinedPosition, combinedRotation);
+
+            float multiplier = 1f;
+            if (m_SprintAction.action != null && m_SprintAction.action.IsPressed())
+                multiplier = m_SprintMultiplier;
+
+            moveSpeed = Mathf.Lerp(moveSpeed, 7f * multiplier, Time.deltaTime * 5f);
+
 
             return base.ComputeDesiredMove(input);
         }
