@@ -1403,7 +1403,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""name"": ""Teleport Mode Cancel"",
                     ""type"": ""Button"",
                     ""id"": ""89ce8348-6001-41a3-85b9-f8f2e2dcad7c"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -1439,7 +1439,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""name"": ""Grab Move"",
                     ""type"": ""Button"",
                     ""id"": ""c5a6d766-d487-42ae-b293-da4749469e18"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -1448,6 +1448,15 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""name"": ""Sprint"",
                     ""type"": ""Button"",
                     ""id"": ""b3f1eada-4253-49cb-a5f8-9a7cead6d9a0"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Climb"",
+                    ""type"": ""Button"",
+                    ""id"": ""3f8e54b2-75f5-4bb0-b0c4-a71b5f953250"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -1529,6 +1538,17 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Sprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b9bdf95c-19f5-4d2e-beb6-91c6381a6f69"",
+                    ""path"": ""<XRController>{LeftHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Climb"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -2576,6 +2596,15 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Climb"",
+                    ""type"": ""Button"",
+                    ""id"": ""65ba30b2-87bf-4e8e-8277-031ab1a07c34"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -2653,6 +2682,17 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7dcfd137-308c-4001-9cbe-2d97d26b489e"",
+                    ""path"": ""<XRController>{RightHand}/{GripButton}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Climb"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -3579,6 +3619,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         m_XRILeftLocomotion_Move = m_XRILeftLocomotion.FindAction("Move", throwIfNotFound: true);
         m_XRILeftLocomotion_GrabMove = m_XRILeftLocomotion.FindAction("Grab Move", throwIfNotFound: true);
         m_XRILeftLocomotion_Sprint = m_XRILeftLocomotion.FindAction("Sprint", throwIfNotFound: true);
+        m_XRILeftLocomotion_Climb = m_XRILeftLocomotion.FindAction("Climb", throwIfNotFound: true);
         // XRI Right
         m_XRIRight = asset.FindActionMap("XRI Right", throwIfNotFound: true);
         m_XRIRight_Position = m_XRIRight.FindAction("Position", throwIfNotFound: true);
@@ -3618,6 +3659,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         m_XRIRightLocomotion_Move = m_XRIRightLocomotion.FindAction("Move", throwIfNotFound: true);
         m_XRIRightLocomotion_GrabMove = m_XRIRightLocomotion.FindAction("Grab Move", throwIfNotFound: true);
         m_XRIRightLocomotion_Jump = m_XRIRightLocomotion.FindAction("Jump", throwIfNotFound: true);
+        m_XRIRightLocomotion_Climb = m_XRIRightLocomotion.FindAction("Climb", throwIfNotFound: true);
         // XRI UI
         m_XRIUI = asset.FindActionMap("XRI UI", throwIfNotFound: true);
         m_XRIUI_Navigate = m_XRIUI.FindAction("Navigate", throwIfNotFound: true);
@@ -4365,6 +4407,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
     private readonly InputAction m_XRILeftLocomotion_Move;
     private readonly InputAction m_XRILeftLocomotion_GrabMove;
     private readonly InputAction m_XRILeftLocomotion_Sprint;
+    private readonly InputAction m_XRILeftLocomotion_Climb;
     /// <summary>
     /// Provides access to input actions defined in input action map "XRI Left Locomotion".
     /// </summary>
@@ -4404,6 +4447,10 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         /// Provides access to the underlying input action "XRILeftLocomotion/Sprint".
         /// </summary>
         public InputAction @Sprint => m_Wrapper.m_XRILeftLocomotion_Sprint;
+        /// <summary>
+        /// Provides access to the underlying input action "XRILeftLocomotion/Climb".
+        /// </summary>
+        public InputAction @Climb => m_Wrapper.m_XRILeftLocomotion_Climb;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -4451,6 +4498,9 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
+            @Climb.started += instance.OnClimb;
+            @Climb.performed += instance.OnClimb;
+            @Climb.canceled += instance.OnClimb;
         }
 
         /// <summary>
@@ -4483,6 +4533,9 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
+            @Climb.started -= instance.OnClimb;
+            @Climb.performed -= instance.OnClimb;
+            @Climb.canceled -= instance.OnClimb;
         }
 
         /// <summary>
@@ -4983,6 +5036,7 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
     private readonly InputAction m_XRIRightLocomotion_Move;
     private readonly InputAction m_XRIRightLocomotion_GrabMove;
     private readonly InputAction m_XRIRightLocomotion_Jump;
+    private readonly InputAction m_XRIRightLocomotion_Climb;
     /// <summary>
     /// Provides access to input actions defined in input action map "XRI Right Locomotion".
     /// </summary>
@@ -5022,6 +5076,10 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         /// Provides access to the underlying input action "XRIRightLocomotion/Jump".
         /// </summary>
         public InputAction @Jump => m_Wrapper.m_XRIRightLocomotion_Jump;
+        /// <summary>
+        /// Provides access to the underlying input action "XRIRightLocomotion/Climb".
+        /// </summary>
+        public InputAction @Climb => m_Wrapper.m_XRIRightLocomotion_Climb;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -5069,6 +5127,9 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @Climb.started += instance.OnClimb;
+            @Climb.performed += instance.OnClimb;
+            @Climb.canceled += instance.OnClimb;
         }
 
         /// <summary>
@@ -5101,6 +5162,9 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @Climb.started -= instance.OnClimb;
+            @Climb.performed -= instance.OnClimb;
+            @Climb.canceled -= instance.OnClimb;
         }
 
         /// <summary>
@@ -5831,6 +5895,13 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSprint(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Climb" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnClimb(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "XRI Right" which allows adding and removing callbacks.
@@ -6086,6 +6157,13 @@ public partial class @XRIDefaultInputActions: IInputActionCollection2, IDisposab
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnJump(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Climb" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnClimb(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "XRI UI" which allows adding and removing callbacks.
