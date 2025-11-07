@@ -8,8 +8,18 @@ using UnityEngine;
 public class XRBomb : MonoBehaviour
 {
     [Header("Bomb Settings")]
-    [Tooltip("The time in seconds before the drone drops the bomb.")]
-    public float dropDelay = 5f;
+    [Tooltip("Seconds after spawn before the bomb can explode.")]
+    [Min(0f)]
+    public float armDelay = 0.2f;
+
+    [Tooltip("Primary tag that will trigger the explosion. Leave empty to explode on any collision.")]
+    public string groundTag = "Terrain";
+
+    [Tooltip("Secondary tag that will also trigger the explosion, e.g., 'Ground'.")]
+    public string secondaryGroundTag = "Ground";
+
+    [Tooltip("If true, the bomb explodes on any collision once armed, regardless of tag.")]
+    public bool explodeOnAnyCollision = false;
 
     [Header("Explosion Settings")]
     [Tooltip("The particle effect prefab to instantiate on explosion.")]
@@ -33,6 +43,7 @@ public class XRBomb : MonoBehaviour
 
     private AudioSource audioSource;
     private bool hasExploded = false;
+    private bool isArmed = false;
 
     private void Start()
     {
@@ -43,16 +54,65 @@ public class XRBomb : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
         }
+
+        ArmAfter(armDelay);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Explode only once upon hitting an object tagged "Ground".
-        if (!hasExploded && collision.gameObject.CompareTag("Ground"))
+        if (hasExploded || !isArmed)
+        {
+            return;
+        }
+
+        if (ShouldDetonateFor(collision.gameObject))
         {
             hasExploded = true;
             Explode();
         }
+    }
+
+    /// <summary>
+    /// Allows external callers to re-arm the bomb after a custom delay.
+    /// </summary>
+    public void ArmAfter(float delay)
+    {
+        CancelInvoke(nameof(Arm));
+
+        if (delay <= 0f)
+        {
+            Arm();
+        }
+        else
+        {
+            Invoke(nameof(Arm), delay);
+        }
+    }
+
+    private void Arm()
+    {
+        isArmed = true;
+    }
+
+    private bool ShouldDetonateFor(GameObject other)
+    {
+        if (explodeOnAnyCollision)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(groundTag) && other.tag == groundTag)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(secondaryGroundTag) && other.tag == secondaryGroundTag)
+        {
+            return true;
+        }
+
+        // TerrainCollider covers Unity terrains even if untagged.
+        return other.GetComponent<TerrainCollider>() != null;
     }
 
     /// <summary>
