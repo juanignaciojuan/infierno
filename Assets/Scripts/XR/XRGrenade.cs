@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -27,6 +28,27 @@ public class XRGrenade : MonoBehaviour
     private XRGrabInteractable grabInteractable;
     private bool wasGrabbed = false;
     private bool hasExploded = false;
+    private bool isArmed = false;
+
+    [Header("Haptics")]
+    [Tooltip("Invoked on explosion. Wire to controller Haptic Impulse Player.")]
+    public UnityEvent onExplosionHaptics;
+
+    [Header("Arming")]
+    [Tooltip("If true, grenade only arms after being grabbed. If false, can be armed externally (e.g. drone).")]
+    public bool requireGrabToArm = true;
+    [Tooltip("If > 0, automatically destroy (fail-safe) after this many seconds even if not exploded.")]
+    public float maxLifetime = 0f;
+
+    [Header("Player Impact (Optional)")]
+    [Tooltip("If true, player will be pushed even if they lack a Rigidbody.")]
+    public bool affectPlayer = true;
+    [Tooltip("Tag used to identify player root or collider for knockback.")]
+    public string playerTag = "Player";
+    [Tooltip("Horizontal knockback force applied if player has Rigidbody (explosion force override).")]
+    public float playerPushForce = 600f;
+    [Tooltip("Additional upward force applied to player.")]
+    public float playerUpForce = 150f;
 
     private void Awake()
     {
@@ -58,17 +80,29 @@ public class XRGrenade : MonoBehaviour
     private void OnGrab(SelectEnterEventArgs args)
     {
         wasGrabbed = true;
+        if (requireGrabToArm)
+        {
+            Arm();
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Explode only if it has been grabbed and not yet exploded.
-        // Ensure your ground GameObject is tagged with "Ground".
-        if (wasGrabbed && !hasExploded && collision.gameObject.CompareTag("Ground"))
+        // Explode only if armed and not yet exploded.
+        if (isArmed && !hasExploded && ShouldExplodeFor(collision.gameObject))
         {
             hasExploded = true;
             Explode();
         }
+    }
+
+    private bool ShouldExplodeFor(GameObject other)
+    {
+        // Support common ground/terrain cases
+        if (other.CompareTag("Ground")) return true;
+        if (other.CompareTag("Terrain")) return true;
+        if (other.GetComponent<TerrainCollider>() != null) return true;
+        return false;
     }
 
     /// <summary>
@@ -116,7 +150,81 @@ public class XRGrenade : MonoBehaviour
             }
         }
 
+        // Optional player knockback
+        if (affectPlayer && !string.IsNullOrEmpty(playerTag))
+        {
+            foreach (Collider hit in colliders)
+            {
+                if (!hit || !hit.CompareTag(playerTag)) continue;
+                Rigidbody rb = hit.attachedRigidbody;
+                if (rb != null)
+                {
+                    rb.AddExplosionForce(playerPushForce, transform.position, explosionRadius);
+                    rb.AddForce(Vector3.up * playerUpForce, ForceMode.Impulse);
+                }
+                else
+                {
+                    Transform t = hit.transform;
+                    Vector3 dir = (t.position - transform.position).normalized;
+                    float scalar = playerPushForce / 600f;
+                    t.position += (dir + Vector3.up * 0.3f) * scalar;
+                }
+            }
+        }
+
         // 4. Destroy the grenade GameObject
+        onExplosionHaptics?.Invoke();
         Destroy(gameObject);
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(1f, 1f, 0f, 0.25f);
+        Gizmos.DrawSphere(transform.position, explosionRadius);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+#endif
+
+    /// <summary>
+    /// Arms the grenade so it can explode on ground impact.
+    /// </summary>
+    public void Arm()
+    {
+        isArmed = true;
+        if (maxLifetime > 0f)
+        {
+            CancelInvoke(nameof(SelfDestruct));
+            Invoke(nameof(SelfDestruct), maxLifetime);
+        }
+    }
+
+    /// <summary>
+    /// External helper for drones: arm after delay.
+    /// </summary>
+    public void ArmAfter(float delay)
+    {
+        if (delay <= 0f)
+        {
+            Arm();
+        }
+        else
+        {
+            Invoke(nameof(Arm), delay);
+        }
+    }
+
+    /// <summary>
+    /// Returns true if player has grabbed this grenade at least once (used by drone hit logic).
+    /// </summary>
+    public bool HasBeenPlayerHandled => wasGrabbed;
+
+    private void SelfDestruct()
+    {
+        if (!hasExploded)
+        {
+            Explode();
+        }
     }
 }

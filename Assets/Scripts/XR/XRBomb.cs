@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Handles the behavior of a bomb, typically dropped by a drone.
@@ -44,6 +45,20 @@ public class XRBomb : MonoBehaviour
     private AudioSource audioSource;
     private bool hasExploded = false;
     private bool isArmed = false;
+
+    [Header("Haptics")]
+    [Tooltip("Invoked on bomb explosion. Wire to controller Haptic Impulse Player.")]
+    public UnityEvent onExplosionHaptics;
+
+    [Header("Player Impact (Optional)")]
+    [Tooltip("If true, player will be pushed even if they lack a Rigidbody.")]
+    public bool affectPlayer = true;
+    [Tooltip("Tag used to identify player root or collider for knockback.")]
+    public string playerTag = "Player";
+    [Tooltip("Horizontal knockback force applied if player has Rigidbody (explosion force override).")]
+    public float playerPushForce = 600f;
+    [Tooltip("Additional upward force applied to player.")]
+    public float playerUpForce = 150f;
 
     private void Start()
     {
@@ -152,6 +167,30 @@ public class XRBomb : MonoBehaviour
             }
         }
 
+        // 3b. Player knockback (if player lacks rigidbody or needs an extra push)
+        if (affectPlayer && !string.IsNullOrEmpty(playerTag))
+        {
+            foreach (Collider hit in colliders)
+            {
+                if (!hit || !hit.CompareTag(playerTag)) continue;
+                Rigidbody rb = hit.attachedRigidbody;
+                if (rb != null)
+                {
+                    // Add stronger player-specific force
+                    rb.AddExplosionForce(playerPushForce, transform.position, explosionRadius);
+                    rb.AddForce(Vector3.up * playerUpForce, ForceMode.Impulse);
+                }
+                else
+                {
+                    // Fallback manual translation if no RB (e.g., XR rig root without physics)
+                    Transform t = hit.transform;
+                    Vector3 dir = (t.position - transform.position).normalized;
+                    float scalar = playerPushForce / 600f; // scale relative to default
+                    t.position += (dir + Vector3.up * 0.3f) * scalar;
+                }
+            }
+        }
+
         // 4. Spawn grenades
         if (grenadePrefab != null && numberOfGrenadesToSpawn > 0)
         {
@@ -167,10 +206,29 @@ public class XRBomb : MonoBehaviour
                 {
                     grenadeRb.AddExplosionForce(200f, transform.position, 5f);
                 }
+
+                // Ensure spawned grenades are NOT armed until the player grabs them
+                var grenadeComp = spawnedGrenade.GetComponent<XRGrenade>();
+                if (grenadeComp != null)
+                {
+                    grenadeComp.requireGrabToArm = true; // must be grabbed to arm
+                    // Do NOT call Arm/ArmAfter here; they remain safe until grabbed
+                }
             }
         }
 
         // 5. Destroy the bomb GameObject
+        onExplosionHaptics?.Invoke();
         Destroy(gameObject);
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
+        Gizmos.DrawSphere(transform.position, explosionRadius);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+#endif
 }

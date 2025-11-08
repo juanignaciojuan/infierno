@@ -49,8 +49,8 @@ public class RespawnOnTrigger : MonoBehaviour
         // pantalla fade (si tienes sistema)
         if (fadeScreen)
         {
-            // llama a tu UIManager para fade si lo tienes. Ejemplo:
-            UIManager.instance?.ShowLiveMessage("Respawning...");
+            // If you have a screen fade system, call it here. For now, log so XRDebugOverlay can show it.
+            Debug.Log("Respawning...");
         }
 
         yield return new WaitForSeconds(respawnDelay);
@@ -71,7 +71,8 @@ public class RespawnOnTrigger : MonoBehaviour
                 cc.enabled = true;
             }
 
-            UIManager.instance?.ShowMessage("Respawned!");
+            // If you have a UI system, notify here. For now, log so XRDebugOverlay can show it.
+            Debug.Log("Respawned!");
         }
     }
 }
