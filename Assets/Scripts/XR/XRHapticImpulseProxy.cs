@@ -23,33 +23,44 @@ public class XRHapticImpulseProxy : MonoBehaviour
     // No-arg play for events that don't carry intensity
     public void Play()
     {
-        TryInvoke(target, "Play");
-        TryInvoke(target, "Trigger");
-        TryInvoke(target, "Send", defaultAmplitude, defaultDuration, defaultFrequency);
+        if (!Application.isPlaying) return; // avoid editor noise
+        if (target == null) return;
+        if (TryInvoke(target, "Play")) return;
+        if (TryInvoke(target, "Trigger")) return;
+        if (TryInvoke(target, "Send", defaultAmplitude, defaultDuration, defaultFrequency)) return;
         TryInvoke(target, "Send", defaultAmplitude, defaultDuration);
     }
 
     // Play with amplitude
     public void PlayAmplitude(float amplitude)
     {
+        if (!Application.isPlaying) return;
+        if (target == null)
+        {
+            Play();
+            return;
+        }
         float amp = Mathf.Clamp01(amplitude);
-        // Try common signatures in order
         if (TryInvoke(target, "Trigger", amp)) return;
         if (TryInvoke(target, "Play", amp)) return;
         if (TryInvoke(target, "Send", amp, defaultDuration, defaultFrequency)) return;
         if (TryInvoke(target, "Send", amp, defaultDuration)) return;
-        // Fallback to no-arg
         Play();
     }
 
     // Play with amplitude & duration
     public void PlayAD(float amplitude, float duration)
     {
+        if (!Application.isPlaying) return;
+        if (target == null)
+        {
+            PlayAmplitude(amplitude);
+            return;
+        }
         float amp = Mathf.Clamp01(amplitude);
         float dur = Mathf.Max(0f, duration);
         if (TryInvoke(target, "Send", amp, dur, defaultFrequency)) return;
         if (TryInvoke(target, "Send", amp, dur)) return;
-        // Fallbacks
         PlayAmplitude(amp);
     }
 
@@ -58,7 +69,14 @@ public class XRHapticImpulseProxy : MonoBehaviour
         if (comp == null) return false;
         var m = comp.GetType().GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
         if (m == null) return false;
-        try { m.Invoke(comp, args); return true; }
-        catch { return false; }
+        try
+        {
+            m.Invoke(comp, args);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

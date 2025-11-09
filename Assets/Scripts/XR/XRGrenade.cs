@@ -113,19 +113,8 @@ public class XRGrenade : MonoBehaviour
         // 1. Instantiate particle effect
         if (explosionEffectPrefab != null)
         {
-            GameObject explosionInstance = Instantiate(explosionEffectPrefab, transform.position, transform.rotation);
-            // Destroy the particle effect after it has finished playing.
-            // This assumes the particle system is not set to loop.
-            ParticleSystem ps = explosionInstance.GetComponent<ParticleSystem>();
-            if (ps != null)
-            {
-                Destroy(explosionInstance, ps.main.duration);
-            }
-            else
-            {
-                // Fallback for particle systems without a main ParticleSystem component at the root
-                Destroy(explosionInstance, 5f);
-            }
+            // Use pooled VFX to reduce spikes/GC
+            VFXPool.Spawn(explosionEffectPrefab, transform.position, transform.rotation);
         }
 
         // 2. Play explosion sound

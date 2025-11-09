@@ -138,16 +138,8 @@ public class XRBomb : MonoBehaviour
         // 1. Instantiate particle effect
         if (explosionEffectPrefab != null)
         {
-            GameObject explosionInstance = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-            ParticleSystem ps = explosionInstance.GetComponent<ParticleSystem>();
-            if (ps != null)
-            {
-                Destroy(explosionInstance, ps.main.duration);
-            }
-            else
-            {
-                Destroy(explosionInstance, 5f); // Fallback
-            }
+            // Use pool instead of Instantiate+Destroy for performance
+            GameObject explosionInstance = VFXPool.Spawn(explosionEffectPrefab, transform.position, transform.rotation);
         }
 
         // 2. Play explosion sound
@@ -192,7 +184,7 @@ public class XRBomb : MonoBehaviour
         }
 
         // 4. Spawn grenades
-        if (grenadePrefab != null && numberOfGrenadesToSpawn > 0)
+    if (grenadePrefab != null && numberOfGrenadesToSpawn > 0)
         {
             for (int i = 0; i < numberOfGrenadesToSpawn; i++)
             {

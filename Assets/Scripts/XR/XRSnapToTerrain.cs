@@ -7,8 +7,16 @@ public class XRSnapToTerrain : MonoBehaviour
     public float offset = 0.05f; // Small vertical offset to prevent clipping
     public float alignSpeed = 5f; // How fast the object rotates to align with the slope
 
+    // Allow external systems to temporarily suspend snapping (e.g., during explosion pushes)
+    private float _suspendUntil;
+    public void Suspend(float seconds)
+    {
+        _suspendUntil = Mathf.Max(_suspendUntil, Time.time + Mathf.Max(0f, seconds));
+    }
+
     void LateUpdate()
     {
+        if (Application.isPlaying && Time.time < _suspendUntil) return;
         if (groundLayer == 0) return;
 
         // Raycast down from above the object

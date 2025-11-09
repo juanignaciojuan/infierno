@@ -41,7 +41,8 @@ public class XRDroneHitAndRespawn : MonoBehaviour
     private Quaternion _spawnRot;
     private bool _dead;
     private AudioSource _audio;
-    private bool _hadRigidbody;
+    // Track whether we added a temporary Rigidbody at death (none existed originally)
+    private bool _addedRuntimeRigidbody;
     private bool _rbOriginalKinematic;
     private bool _rbOriginalUseGravity;
     private RigidbodyConstraints _rbOriginalConstraints;
@@ -54,8 +55,14 @@ public class XRDroneHitAndRespawn : MonoBehaviour
     private MonoBehaviour _patrolA; // DronePatrol
     private MonoBehaviour _patrolB; // XRDronePatrol if different name
 
+    private Vector3 startPosition;
+    private Quaternion startRotation;
+
     private void Awake()
     {
+        startPosition = transform.position;
+        startRotation = transform.rotation;
+
         _spawnPos = transform.position;
         _spawnRot = transform.rotation;
         _audio = GetComponent<AudioSource>();
@@ -132,7 +139,6 @@ public class XRDroneHitAndRespawn : MonoBehaviour
         var existingRb = GetComponent<Rigidbody>();
         if (existingRb != null)
         {
-            _hadRigidbody = true;
             _rbOriginalKinematic = existingRb.isKinematic;
             _rbOriginalUseGravity = existingRb.useGravity;
             _rbOriginalConstraints = existingRb.constraints;
@@ -155,8 +161,8 @@ public class XRDroneHitAndRespawn : MonoBehaviour
         if (_patrolB) _patrolB.enabled = false;
 
         // Ensure a Rigidbody to fall
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb == null) { rb = gameObject.AddComponent<Rigidbody>(); _hadRigidbody = false; }
+    Rigidbody rb = GetComponent<Rigidbody>();
+    if (rb == null) { rb = gameObject.AddComponent<Rigidbody>(); _addedRuntimeRigidbody = true; }
         rb.isKinematic = false;
         rb.useGravity = true;
         rb.AddForce(transform.forward * deathImpulse + Vector3.up * deathUpImpulse, ForceMode.Impulse);
@@ -168,33 +174,44 @@ public class XRDroneHitAndRespawn : MonoBehaviour
 
         // Respawn later
         yield return new WaitForSeconds(respawnDelay);
-        // Reset transform and physics
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        // Restore original RB settings if existed, otherwise disable added RB to return to transform-based patrol
-        if (_hadRigidbody)
-        {
-            rb.isKinematic = _rbOriginalKinematic;
-            rb.useGravity = _rbOriginalUseGravity;
-            rb.constraints = _rbOriginalConstraints;
-        }
-        else
-        {
-            rb.isKinematic = true;
-            rb.useGravity = false;
-        }
+        Respawn();
+    }
 
-        transform.SetPositionAndRotation(_spawnPos, _spawnRot);
+    void Respawn()
+    {
+        // Reset position and rotation to initial state
+        transform.position = startPosition;
+        transform.rotation = startRotation;
 
-        // Re-enable visuals and colliders
+        // Re-enable components for respawn
         SetRenderersEnabled(true);
         SetCollidersEnabled(true);
-
-        // Re-enable patrol
         if (_patrolA) _patrolA.enabled = true;
         if (_patrolB) _patrolB.enabled = true;
 
+        // Reset death flag
         _dead = false;
+
+        // If a Rigidbody was used, reset its physics properties
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            if (_addedRuntimeRigidbody)
+            {
+                // We added this just for death fall; remove to restore original lightweight state
+                Destroy(rb);
+                _addedRuntimeRigidbody = false;
+            }
+            else
+            {
+                rb.isKinematic = _rbOriginalKinematic;
+                rb.useGravity = _rbOriginalUseGravity;
+                rb.constraints = _rbOriginalConstraints;
+            }
+        }
+
+        // Reactivate the GameObject
+        gameObject.SetActive(true);
     }
 
     private void SetRenderersEnabled(bool enabled)

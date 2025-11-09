@@ -87,21 +87,32 @@ public class DronePatrol : MonoBehaviour
                 continue;
             }
 
-            // Decide if we should drop based on player proximity
-            bool shouldDrop = true;
+            // Determine target (player or camera fallback)
             Transform target = player != null ? player : (Camera.main != null ? Camera.main.transform : null);
-            if (!ignorePlayerDistance && target != null)
+
+            bool shouldDrop = ignorePlayerDistance; // if ignoring distance, we always allow
+            if (!shouldDrop)
             {
-                float dist = Vector3.Distance(transform.position, target.position);
-                shouldDrop = dist <= maxDropDistance;
-                if (!shouldDrop && dist <= nearDistance)
+                if (target != null)
                 {
-                    // near but over max? small bonus
-                    shouldDrop = Random.value < nearDropBonusChance;
+                    float dist = Vector3.Distance(transform.position, target.position);
+                    if (dist <= maxDropDistance)
+                    {
+                        shouldDrop = true;
+                    }
+                    else if (dist <= nearDistance) // nearDistance should be >= maxDropDistance for bonus, adjust docs or logic
+                    {
+                        // Bonus chance when inside nearDistance but outside max range
+                        shouldDrop = Random.value < nearDropBonusChance;
+                    }
+                    if (debugLogs)
+                        Debug.Log($"[DronePatrol] Dist={dist:F1} -> drop={shouldDrop}");
                 }
-                if (debugLogs)
+                else
                 {
-                    Debug.Log($"[DronePatrol] Dist={dist:F1} shouldDrop={shouldDrop}");
+                    // No target reference; allow drop to avoid stalling logic
+                    shouldDrop = true;
+                    if (debugLogs) Debug.Log("[DronePatrol] No target reference; allowing drop.");
                 }
             }
 
@@ -143,6 +154,7 @@ public class DronePatrol : MonoBehaviour
             // Ensure physics settings allow falling
             bombBody.isKinematic = false;
             bombBody.useGravity = true;
+            // Reset velocity to ensure deterministic drop
             bombBody.linearVelocity = Vector3.zero;
             Vector3 dropDir = bombSpawnPoint != null ? -bombSpawnPoint.up : Vector3.down;
             if (initialDropForce != 0f)
