@@ -79,4 +79,14 @@ public class XRHapticImpulseProxy : MonoBehaviour
             return false;
         }
     }
+
+    private void OnEnable()
+    {
+        if (Application.isPlaying) HapticsBus.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        if (Application.isPlaying) HapticsBus.Unregister(this);
+    }
 }

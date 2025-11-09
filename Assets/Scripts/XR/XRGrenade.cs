@@ -137,6 +137,13 @@ public class XRGrenade : MonoBehaviour
             {
                 rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
             }
+
+            // Non-lethal impulse receiver (NPCs / walkers)
+            var nl = hit.GetComponentInParent<XRNonLethalImpulseReceiver>();
+            if (nl != null)
+            {
+                nl.ApplyImpulse(transform.position, explosionForce, explosionRadius);
+            }
         }
 
         // Optional player knockback
@@ -162,7 +169,8 @@ public class XRGrenade : MonoBehaviour
         }
 
         // 4. Destroy the grenade GameObject
-        onExplosionHaptics?.Invoke();
+    onExplosionHaptics?.Invoke();
+    HapticsBus.FireClosest(transform.position, 0.45f, 0.12f);
         Destroy(gameObject);
     }
 

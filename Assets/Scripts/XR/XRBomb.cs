@@ -148,7 +148,7 @@ public class XRBomb : MonoBehaviour
             AudioSource.PlayClipAtPoint(explosionSound, transform.position);
         }
 
-        // 3. Apply physics force
+        // 3. Apply physics force & non-lethal NPC pushes
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (Collider hit in colliders)
         {
@@ -156,6 +156,13 @@ public class XRBomb : MonoBehaviour
             if (rb != null)
             {
                 rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
+            }
+
+            // Non-lethal impulse receiver (NPCs / walkers)
+            var nl = hit.GetComponentInParent<XRNonLethalImpulseReceiver>();
+            if (nl != null)
+            {
+                nl.ApplyImpulse(transform.position, explosionForce, explosionRadius);
             }
         }
 
@@ -211,6 +218,9 @@ public class XRBomb : MonoBehaviour
 
         // 5. Destroy the bomb GameObject
         onExplosionHaptics?.Invoke();
+
+        // Optional: HapticsBus fire closest (strong) vs others (weak) if distance scaling desired
+        HapticsBus.FireClosest(transform.position, 0.55f, 0.18f);
         Destroy(gameObject);
     }
 
