@@ -6,6 +6,7 @@ using UnityEngine.Events;
 /// The bomb explodes on contact with the ground, spawning smaller grenades.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
 public class XRBomb : MonoBehaviour
 {
     [Header("Bomb Settings")]
@@ -45,6 +46,8 @@ public class XRBomb : MonoBehaviour
     private AudioSource audioSource;
     private bool hasExploded = false;
     private bool isArmed = false;
+    // Tracks if we touched something before arming. Useful when the bomb hits the ground during armDelay.
+    private bool touchedSinceSpawn = false;
 
     [Header("Haptics")]
     [Tooltip("Invoked on bomb explosion. Wire to controller Haptic Impulse Player.")]
@@ -74,6 +77,24 @@ public class XRBomb : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
+    {
+        // Mark that we have physical contact; if we arm after this, we may need to explode even if no new enter event fires.
+        touchedSinceSpawn = true;
+
+        if (hasExploded || !isArmed)
+        {
+            return;
+        }
+
+        if (ShouldDetonateFor(collision.gameObject))
+        {
+            hasExploded = true;
+            Explode();
+        }
+    }
+
+    // Safety: if we become armed while already resting on a surface, OnCollisionEnter won't fire again.
+    private void OnCollisionStay(Collision collision)
     {
         if (hasExploded || !isArmed)
         {
@@ -107,6 +128,31 @@ public class XRBomb : MonoBehaviour
     private void Arm()
     {
         isArmed = true;
+
+        // If we were already touching something when we armed, validate and explode.
+        if (!hasExploded && touchedSinceSpawn)
+        {
+            if (explodeOnAnyCollision)
+            {
+                hasExploded = true;
+                Explode();
+                return;
+            }
+
+            // Probe for a valid ground contact nearby to respect tag/terrain rules.
+            const float probeRadius = 0.4f;
+            Collider[] hits = Physics.OverlapSphere(transform.position + Vector3.up * 0.05f, probeRadius, ~0, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var go = hits[i].attachedRigidbody ? hits[i].attachedRigidbody.gameObject : hits[i].gameObject;
+                if (ShouldDetonateFor(go))
+                {
+                    hasExploded = true;
+                    Explode();
+                    break;
+                }
+            }
+        }
     }
 
     private bool ShouldDetonateFor(GameObject other)
