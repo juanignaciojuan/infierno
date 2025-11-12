@@ -11,6 +11,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(XRGrabInteractable))]
 public class XRGrenade : MonoBehaviour
 {
+    [HideInInspector] public GameObject _poolPrefabRef; // set by GrenadePool
+
     [Header("Explosion Settings")]
     [Tooltip("The particle effect prefab to instantiate on explosion.")]
     public GameObject explosionEffectPrefab;
@@ -23,6 +25,8 @@ public class XRGrenade : MonoBehaviour
 
     [Tooltip("The radius of the explosion's effect.")]
     public float explosionRadius = 5f;
+    [Tooltip("Layer mask used for explosion OverlapSphere checks.")]
+    public LayerMask explosionLayers = ~0;
 
     private AudioSource audioSource;
     private XRGrabInteractable grabInteractable;
@@ -39,6 +43,8 @@ public class XRGrenade : MonoBehaviour
     public bool requireGrabToArm = true;
     [Tooltip("If > 0, automatically destroy (fail-safe) after this many seconds even if not exploded.")]
     public float maxLifetime = 0f;
+    [Tooltip("If > 0, despawn/destroy this grenade if it hasn't been grabbed within this many seconds.")]
+    public float idleDespawn = 10f;
 
     [Header("Player Impact (Optional)")]
     [Tooltip("If true, player will be pushed even if they lack a Rigidbody.")]
@@ -58,11 +64,18 @@ public class XRGrenade : MonoBehaviour
     private void OnEnable()
     {
         grabInteractable.selectEntered.AddListener(OnGrab);
+        // Start idle despawn timer
+        if (idleDespawn > 0f)
+        {
+            CancelInvoke(nameof(ForceIdleDespawn));
+            Invoke(nameof(ForceIdleDespawn), idleDespawn);
+        }
     }
 
     private void OnDisable()
     {
         grabInteractable.selectEntered.RemoveListener(OnGrab);
+        CancelInvoke(nameof(ForceIdleDespawn));
     }
 
     private void Start()
@@ -80,6 +93,7 @@ public class XRGrenade : MonoBehaviour
     private void OnGrab(SelectEnterEventArgs args)
     {
         wasGrabbed = true;
+        CancelInvoke(nameof(ForceIdleDespawn));
         if (requireGrabToArm)
         {
             Arm();
@@ -126,7 +140,7 @@ public class XRGrenade : MonoBehaviour
 
         // 3. Apply physics force
         // Find all colliders within the explosion radius
-        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+    Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius, explosionLayers, QueryTriggerInteraction.Ignore);
 
         foreach (Collider hit in colliders)
         {
@@ -171,7 +185,7 @@ public class XRGrenade : MonoBehaviour
         // 4. Destroy the grenade GameObject
     onExplosionHaptics?.Invoke();
     HapticsBus.FireClosest(transform.position, 0.45f, 0.12f);
-        Destroy(gameObject);
+    GrenadePool.Return(gameObject);
     }
 
 #if UNITY_EDITOR
@@ -223,5 +237,34 @@ public class XRGrenade : MonoBehaviour
         {
             Explode();
         }
+    }
+
+    private void ForceIdleDespawn()
+    {
+        if (!wasGrabbed && !hasExploded)
+        {
+            GrenadePool.Return(gameObject);
+        }
+    }
+
+
+    public void ResetStateForSpawn()
+    {
+        // Reset all state here, called by the pool before re-enabling the object.
+        hasExploded = false;
+        wasGrabbed = false;
+        isArmed = false;
+
+        CancelInvoke();
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        var col = GetComponent<Collider>();
+        if (col) col.enabled = true;
     }
 }

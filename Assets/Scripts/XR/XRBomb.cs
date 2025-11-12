@@ -9,6 +9,8 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider))]
 public class XRBomb : MonoBehaviour
 {
+    [HideInInspector] public GameObject _poolPrefabRef; // set by BombPool
+
     [Header("Bomb Settings")]
     [Tooltip("Seconds after spawn before the bomb can explode.")]
     [Min(0f)]
@@ -35,6 +37,8 @@ public class XRBomb : MonoBehaviour
 
     [Tooltip("The radius of the explosion's effect.")]
     public float explosionRadius = 10f;
+    [Tooltip("Layer mask for explosion physics queries (OverlapSphere).")]
+    public LayerMask explosionLayers = ~0;
 
     [Header("Post-Explosion Settings")]
     [Tooltip("The grenade prefab to spawn after the bomb explodes.")]
@@ -42,6 +46,8 @@ public class XRBomb : MonoBehaviour
 
     [Tooltip("The number of grenades to spawn after the explosion.")]
     public int numberOfGrenadesToSpawn = 2;
+    [Tooltip("Maximum seconds a spawned grenade can persist ungrabbed before auto-destroy (0 disables).")]
+    public float spawnedGrenadeIdleDespawn = 10f;
 
     private AudioSource audioSource;
     private bool hasExploded = false;
@@ -195,7 +201,7 @@ public class XRBomb : MonoBehaviour
         }
 
         // 3. Apply physics force & non-lethal NPC pushes
-        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+    Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius, explosionLayers, QueryTriggerInteraction.Ignore);
         foreach (Collider hit in colliders)
         {
             Rigidbody rb = hit.GetComponent<Rigidbody>();
@@ -237,13 +243,13 @@ public class XRBomb : MonoBehaviour
         }
 
         // 4. Spawn grenades
-    if (grenadePrefab != null && numberOfGrenadesToSpawn > 0)
+        if (grenadePrefab != null && numberOfGrenadesToSpawn > 0)
         {
             for (int i = 0; i < numberOfGrenadesToSpawn; i++)
             {
-                // Spawn with a slight upward and outward velocity to spread them out
                 Vector3 spawnPosition = transform.position + Random.insideUnitSphere * 0.5f;
-                GameObject spawnedGrenade = Instantiate(grenadePrefab, spawnPosition, Quaternion.identity);
+                GameObject spawnedGrenade = GrenadePool.Spawn(grenadePrefab, spawnPosition, Quaternion.identity);
+                if (spawnedGrenade == null) continue; // Pool might be exhausted
                 
                 // Give the spawned grenade a little push
                 Rigidbody grenadeRb = spawnedGrenade.GetComponent<Rigidbody>();
@@ -257,7 +263,11 @@ public class XRBomb : MonoBehaviour
                 if (grenadeComp != null)
                 {
                     grenadeComp.requireGrabToArm = true; // must be grabbed to arm
-                    // Do NOT call Arm/ArmAfter here; they remain safe until grabbed
+                    // Set idle despawn if configured
+                    if (spawnedGrenadeIdleDespawn > 0f)
+                    {
+                        grenadeComp.idleDespawn = spawnedGrenadeIdleDespawn;
+                    }
                 }
             }
         }
@@ -267,7 +277,32 @@ public class XRBomb : MonoBehaviour
 
         // Optional: HapticsBus fire closest (strong) vs others (weak) if distance scaling desired
         HapticsBus.FireClosest(transform.position, 0.55f, 0.18f);
-        Destroy(gameObject);
+        BombPool.Return(gameObject);
+    }
+
+    private static Transform FindPlayer()
+    {
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) return playerObj.transform;
+        if (Camera.main != null) return Camera.main.transform;
+        return null;
+    }
+
+    // Called by BombPool after activation to ensure a clean state
+    public void ResetStateForSpawn()
+    {
+        hasExploded = false;
+        isArmed = false;
+        touchedSinceSpawn = false;
+        CancelInvoke();
+        // ensure collider/rigidbody are enabled/clean
+        var col = GetComponent<Collider>(); if (col) col.enabled = true;
+        var rb = GetComponent<Rigidbody>();
+        if (rb)
+        {
+            rb.isKinematic = false; rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero; rb.angularVelocity = Vector3.zero;
+        }
     }
 
 #if UNITY_EDITOR
