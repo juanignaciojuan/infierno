@@ -41,8 +41,8 @@ public class XRBomb : MonoBehaviour
     public LayerMask explosionLayers = ~0;
 
     [Header("Post-Explosion Settings")]
-    [Tooltip("The grenade prefab to spawn after the bomb explodes.")]
-    public GameObject grenadePrefab;
+    [Tooltip("An array of possible grenade prefabs to spawn. One will be chosen at random.")]
+    public GameObject[] grenadePrefabs;
 
     [Tooltip("The number of grenades to spawn after the explosion.")]
     public int numberOfGrenadesToSpawn = 2;
@@ -243,13 +243,17 @@ public class XRBomb : MonoBehaviour
         }
 
         // 4. Spawn grenades
-        if (grenadePrefab != null && numberOfGrenadesToSpawn > 0)
+        if (grenadePrefabs != null && grenadePrefabs.Length > 0 && numberOfGrenadesToSpawn > 0)
         {
             for (int i = 0; i < numberOfGrenadesToSpawn; i++)
             {
+                // Select a random grenade prefab from the array
+                GameObject grenadePrefab = grenadePrefabs[Random.Range(0, grenadePrefabs.Length)];
+                if (grenadePrefab == null) continue;
+
+                // Spawn with a slight upward and outward velocity to spread them out
                 Vector3 spawnPosition = transform.position + Random.insideUnitSphere * 0.5f;
-                GameObject spawnedGrenade = GrenadePool.Spawn(grenadePrefab, spawnPosition, Quaternion.identity);
-                if (spawnedGrenade == null) continue; // Pool might be exhausted
+                GameObject spawnedGrenade = Instantiate(grenadePrefab, spawnPosition, Quaternion.identity);
                 
                 // Give the spawned grenade a little push
                 Rigidbody grenadeRb = spawnedGrenade.GetComponent<Rigidbody>();

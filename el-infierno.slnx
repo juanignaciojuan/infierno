@@ -1,10 +1,10 @@
 ﻿<Solution>
   <Project Path="ControllerSample.csproj" />
-  <Project Path="Unity.XR.Hands.Samples.VisualizerSample.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.ARStarterAssets.csproj" />
   <Project Path="Unity.XR.Hands.Samples.Gestures.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.StarterAssets.csproj" />
+  <Project Path="Unity.XR.Hands.Samples.VisualizerSample.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.Hands.csproj" />
   <Project Path="Unity.XR.Management.Samples.csproj" />
   <Project Path="Unity.XR.Management.Samples.Editor.csproj" />

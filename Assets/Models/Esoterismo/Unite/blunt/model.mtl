@@ -1,0 +1,8 @@
+newmtl unnamed_mtl_0000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ns 32.000000
+map_Kd jpegout.jpg
+map_Ks jpegout.jpg
+map_bump jpegout.jpg
+

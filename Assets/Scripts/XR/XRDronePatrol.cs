@@ -244,12 +244,7 @@ public class DronePatrol : MonoBehaviour
     {
         Vector3 pos = bombSpawnPoint != null ? bombSpawnPoint.position : transform.position + Vector3.down * 0.2f;
         Quaternion rot = bombSpawnPoint != null ? bombSpawnPoint.rotation : Quaternion.identity;
-        GameObject bomb = BombPool.Spawn(bombPrefab, pos, rot);
-        if (bomb == null)
-        {
-            if (debugLogs) Debug.LogWarning("[DronePatrol] BombPool returned null. Is the prefab assigned and pool prewarmed?");
-            return;
-        }
+        GameObject bomb = Instantiate(bombPrefab, pos, rot);
 
         if (bomb.TryGetComponent<Rigidbody>(out var rb))
         {
