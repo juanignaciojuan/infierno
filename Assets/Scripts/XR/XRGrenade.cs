@@ -247,24 +247,17 @@ public class XRGrenade : MonoBehaviour
         }
     }
 
-
+    private bool _pooledReusePending;
     public void ResetStateForSpawn()
     {
-        // Reset all state here, called by the pool before re-enabling the object.
-        hasExploded = false;
-        wasGrabbed = false;
-        isArmed = false;
-
+        _pooledReusePending = true; // we will reset on next OnEnable
         CancelInvoke();
         var rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = false; rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero; rb.angularVelocity = Vector3.zero;
         }
-        var col = GetComponent<Collider>();
-        if (col) col.enabled = true;
+        var col = GetComponent<Collider>(); if (col) col.enabled = true;
     }
 }
