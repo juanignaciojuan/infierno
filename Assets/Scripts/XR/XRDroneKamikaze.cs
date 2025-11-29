@@ -240,6 +240,9 @@ public class XRDroneKamikaze : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (var c in hits)
         {
+            // Don't apply explosion physics to the Player (avoid lifting them).
+            if (c.CompareTag("Player")) continue;
+
             if (c.attachedRigidbody != null)
                 c.attachedRigidbody.AddExplosionForce(explosionForce, transform.position, explosionRadius, 0.5f, ForceMode.Impulse);
         }

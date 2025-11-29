@@ -40,17 +40,30 @@ public class XRControlsMenu : MonoBehaviour
     public void SetMenu(bool active)
     {
         if (controlsMenuRoot == null) return;
-
         controlsMenuRoot.SetActive(active);
-        
-        // Optional: Position the menu in front of the player when opened
+        // Position the menu as a child of the camera so it stays in front of the player
         if (active && Camera.main != null)
         {
-            // Place 1.5m in front of camera, at camera height
+            // Make sure the canvas is world-space. We'll parent it to the camera and place at a local offset.
             Transform cam = Camera.main.transform;
-            controlsMenuRoot.transform.position = cam.position + cam.forward * 1.5f;
-            // Face the camera (UI usually looks back at camera, so look at camera + 180 or LookRotation(forward))
-            controlsMenuRoot.transform.rotation = Quaternion.LookRotation(controlsMenuRoot.transform.position - cam.position);
+
+            // Cache the original parent so we can restore when closed
+            if (controlsMenuRoot.transform.parent != cam)
+            {
+                controlsMenuRoot.transform.SetParent(cam, worldPositionStays: true);
+            }
+
+            // Use a comfortable fixed offset in front of the camera (customize in inspector directly on the object if needed)
+            controlsMenuRoot.transform.localPosition = new Vector3(0f, -0.2f, 1.5f);
+            controlsMenuRoot.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        }
+        else
+        {
+            // When closing, un-parent so the menu stays in the scene hierarchy as before
+            if (!active && controlsMenuRoot.transform.parent != null)
+            {
+                controlsMenuRoot.transform.SetParent(null, worldPositionStays: true);
+            }
         }
     }
 }
